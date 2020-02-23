@@ -7,10 +7,12 @@ public class StringComparator {
         if (args.length == 0) {
             throw new Exception("not found args");
         }
-        Scanner sc = new Scanner(new File(args[0]));
-        String first = sc.nextLine();
-        String second = sc.nextLine();
-        compare(first, second);
+
+        try (Scanner sc = new Scanner(new File(args[0]))) {
+            String first = sc.nextLine();
+            String second = sc.nextLine();
+            compare(first, second);
+        }
     }
 
     private static void compare(String first, String second) {

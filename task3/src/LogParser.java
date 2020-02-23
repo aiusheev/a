@@ -13,10 +13,8 @@ public class LogParser {
     private static final String TOP_UP = "top up";
     private static final char SEPARATOR = ',';
 
-    private static BufferedReader fr;
-    private static FileWriter fw;
-    private static Date startDate;
-    private static Date endDate;
+    private Date startDate;
+    private Date endDate;
 
     private int toTopUpAttempts;
     private int topUpFail;
@@ -33,27 +31,24 @@ public class LogParser {
     private int endV;
     private Status lineStatus;
 
-    public static void main(String[] args) throws Exception {
-        try {
-            prepareParams(args);
+    public static void main(String[] args) {
+        try(BufferedReader fr = new BufferedReader(new FileReader(args[0]));
+            FileWriter fw = new FileWriter("result.csv")) {
+            LogParser logParser = new LogParser();
+            logParser.prepareParams(args);
+            logParser.parse(fr, fw);
         } catch (Exception e) {
             System.out.println("usage");
-            return;
         }
-
-        LogParser logParser = new LogParser();
-        logParser.parse();
     }
 
-    private static void prepareParams(String[] args) throws IOException, ParseException {
-        fr = new BufferedReader(new FileReader(args[0]));
-        fw = new FileWriter("result.csv");
+    private void prepareParams(String[] args) throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         startDate = formatter.parse(args[1]);
         endDate = formatter.parse(args[2]);
     }
 
-    private void parse() throws Exception {
+    private void parse(BufferedReader fr, FileWriter fw) throws Exception {
         fr.readLine();
         fr.readLine();
         currentV = Integer.parseInt(fr.readLine().replace(" (текущий объем воды в бочке)", ""));
@@ -68,7 +63,7 @@ public class LogParser {
 
             Date lineDate = parseDate(line);
             if (lineDate.after(endDate)) {
-                finishHim();
+                finishHim(fw);
                 return;
             }
 
@@ -100,12 +95,10 @@ public class LogParser {
         }
     }
 
-    private void finishHim() throws IOException {
+    private void finishHim(FileWriter fw) throws IOException {
         endV = currentV;
         String cvs = writeResult();
         fw.append(cvs);
-        fr.close();
-        fw.close();
     }
 
     private String writeResult() {

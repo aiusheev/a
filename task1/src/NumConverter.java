@@ -8,10 +8,11 @@ public class NumConverter {
         if (args.length == 0) {
             throw new Exception("not found args");
         }
-        Scanner sc = new Scanner(new File(args[0]));
-        int nb = sc.nextInt();
-        String base = sc.next();
-        System.out.println(intToBase(nb, base));
+        try (Scanner sc = new Scanner(new File(args[0]));) {
+            int nb = sc.nextInt();
+            String base = sc.next();
+            System.out.println(intToBase(nb, base));
+        }
     }
 
     private static String intToBase(int nb, String base) {
